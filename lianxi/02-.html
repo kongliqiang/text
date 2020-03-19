@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button onclick="testGet()">发送GET请求</button><br>
+    <button onclick="testPost()">发送POST请求</button><br>
+    <button onclick="testPut()">发送PUT请求</button><br>
+    <button onclick="testDelete()">发送Delete请求</button><br>
+    <script>
+    
+    function  axios(){
+        //创建XHR对象
+            const xhr =new XMLHttpRequest()
+           //2.初始化 打开连接 (请求的类型是GET还是POST   ,   路径   ,   是否异步false同步true异步  )
+            xhr.open ('GET','  http://localhost:3000/posts')
+             // 3.绑定状态改变的监听, 并在异步回调中读取响应数据
+            xhr.onreadystatechange = function(){        
+            // 如果请求还未完成, 直接结束
+            if(xhr.readyState !== 4){
+                    return
+            }
+            const respo = xhr.response  //着利拿到到是所有请求内容,就是所有,db.json
+            } 
+            // 4.发送请求
+            xhr.send()
+    }
+    axios()
+    </script>
+
+
+   <script>
+               /* 
+    1.函数的返回值为promise, 成功的结果为response, 异常的结果为error
+    2.能处理多种类型的请求: GET/POST/PUT/DELETE
+    3.函数的参数为一个配置对象
+      {
+        url: '',   // 请求地址
+        method: '',   // 请求方式GET/POST/PUT/DELETE
+        params: {},  // GET/DELETE请求的query参数
+        data: {}, // POST或PUT请求的请求体参数 
+      }
+    4.响应json数据自动解析为js
+    */
+
+
+    /*
+      在外部调用的时候:所以源码在封装的的后形参里移动有下面参数
+function testGet(){
+      axios({
+         url:'http://localhost:3000/posts',  
+         method:'GET',
+         params:{
+         id:1,
+          }
+    //ES6:结构参数对象-指定参数默认值 
+    */
+        function axios({
+            //所以源码在封装的的后形参里移动有下面参数
+            url,
+            method='GET',
+            params={},// 对应生成query参数  
+            data={},// 对应生成请求体参数
+        }){//函数的参数为一个对象
+        //一.函数返回一个Promise对象
+              return new Promise((resolve,reject)=>{
+                    /* 
+                        将params中包含的所有数据拼接成url的query参数字符串
+                        正常带query的地址不止有地址还要有后面的参数 像?id=2&title=xxx这些
+                        params: {id: 2, title='xxxx'}
+                        url: http://localhost:3000/posts
+                        生成带query参数的url: http://localhost:3000/posts?id=2&title=xxx
+                    步骤:
+                    
+                     1.创建空字符串*/
+                    let queryStr = ''
+                    // 2.根据params对象生成query参数字符串id=2&title=xxx
+                            //Object.keys(params)得到对象自身上所有属性名的数组forEach遍历数组
+                    Object.keys(params).forEach(key=>{
+                        // & 每遍历一次前面加一个&
+                        queryStr+=`&${key}=${params[key]}`
+                    })
+                    // 3.对生成的字符串进进行判断如果有内容,就把前面的&去掉
+                        if (queryStr !=='') {
+                           // substring 从(1开始截取)原串当中截取子串 返回一个新窜
+                         let substring = queryStr.substring(1)
+                         url+= '?' + substring  // http://localhost:3000/posts?id=2&title=xxx 
+                        }
+                    //发AIAX请求
+                    const xhr =new XMLHttpRequest()
+        //二.初始化 打开连接 (请求的类型是GET还是POST, 路径 ,   是否异步false同步true异步  )      
+                        xhr.open (method,url,true)
+                        // 如果请求还未完成, 直接结束  
+        //三.添加事件  
+                        xhr.onreadystatechange = function(){
+                            // //当请求完成后
+                            if(xhr.readyState !== 4) return
+                             //如果请求成功时执行
+                            const status  = xhr.status //状态码
+                            if (status>=200 && status<300) {
+                                const data = xhr.response  //拿到的是点击后得到的 josn窜
+                                const reso ={   //封装对象
+                                    data:JSON.parse(data), //parse将JSON解析为对象
+                                    status  //状态码
+                                }
+                                resolve(reso)//Promise返回成功resolve
+                            }else{
+         //四.如果请求失败时执行
+                                reject(new Error('request error, status is ' + status)) //Error错误
+                            }
+                            
+                           
+                        } 
+
+
+
+           //四.发送请求
+                        if(method === 'GET'){//GET是没有请求体的
+                            xhr.send()       
+                        } else {            // POST / PUT / DELETE 如果不是GET就发送请求体 
+                        //在这里指定json的请求头 
+                            // xhr.send(data)   //data不能是对象
+                            xhr.setRequestHeader('Content-Type', 'application/json;charset=utf-8')
+                            xhr.send(JSON.stringify(data)) //所以转换为json窜,有json窜就必须有一个请求头
+                        }
+                    
+                 
+                        
+                    })  
+        }
+            /* 只有GET请求不能指定请求体参数, 其它请求(POST/PUT/DELETE)可以指定query参数, params参数和请求参数 
+                参考:
+                    query参数: 问号后面的参数
+                    http://localhost :3000/ posts?id= 1&name=xxx
+                    参数: id / name
+                    params参数:看似是path,它是可以变化的值
+                    http://localhost : 3000/ posts/2/xxx
+                    http://1ocalhost:3000/ posts/1/yyy
+                    参数:像上面的  2或者1开始  xxx/yyy 是可变的 就是params参数
+            */
+
+    </script>
+    <!-- 来测试上面的函数 -->
+     <script>
+        //使用axios测试REST接口
+        //查
+          function testGet(){
+                axios({           //这个执行返回的是一个Promise对象
+                  url:  'http://localhost:3000/posts',  
+                    method:'GET', //类型 
+                    params:{// 指定所有query参数的对象(有:号不是指定的params参数的)  
+                      id:1,
+                   }
+                }).then(response => {
+                        console.log(response.data)
+                    }).catch(error => {
+                        console.log('请求出错 ', error.message)
+                    })
+          }
+          //增
+          function testPost(){
+              axios({           //这个执行返回的是一个Promise对象
+                  url:  'http://localhost:3000/posts', 
+                    method:'POST', //类型 
+                    data: { // 指定所有请求参数的对象,添加
+                      title: 'title222',
+                      author: 'author111'
+                      }
+                }).then(response => {
+                        console.log(response.data) 
+                    }).catch(error => {
+                        console.log('请求出错 ', error.message)
+                    })
+          }
+          //改
+          function testPut(){
+              axios({           //这个执行返回的是一个Promise对象
+                  url:  'http://localhost:3000/posts/10', 
+                    method:'PUT', //类型 
+                    data: { // 指定所有请求参数的对象,添加
+                      title: '呃呃呃呃呃呃',
+                      author: '人个人'
+                      }
+                }) .then(response => {
+                        console.log(response.data) 
+                    }).catch(error => {
+                        console.log('请求出错 ', error.message)
+                    })
+            }
+          //删除
+          function testDelete(){
+              axios({           //这个执行返回的是一个Promise对象
+                  url:  'http://localhost:3000/posts/13', 
+                    method:'DELETE', //类型 
+                    data: { // 删除不看他
+                        title: '而噩噩女',
+                      author: 'author111'
+                      }
+                }) .then(response => {
+                        console.log(response.data) 
+                    }).catch(error => {
+                        console.log('请求出错 ', error.message)
+                    })
+          }
+      </script>
+</body>
+</html>

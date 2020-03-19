@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.bootcss.com/axios/0.19.2/axios.js"></script>
+</head>
+<body>
+    <button onclick="testGet()">发送GET请求</button><br>
+    <button onclick="testPost()">发送POST请求</button><br>
+    <button onclick="testPut()">发送PUT请求</button><br>
+    <button onclick="testDelete()">发送Delete请求</button><br>
+    <script>
+      //使用axios测试REST接口
+      //查
+        function testGet(){
+              axios({           //这个执行返回的是一个Promise对象
+                url:  'http://localhost:3000/posts?id=1',    //地址   ?id=1是params参数
+                // url: 'http://localhost:3000/posts2',
+                // url: 'http://localhost:3000/posts/2',        //query 参数      
+                  method:'GET', //类型 
+                  params:{// 指定所有query参数的对象(有:号不是指定的params参数的)  
+                    id:1,
+                 }
+              }) .then(a=>{     
+                  console.log(a);  //正确走这里
+              }).catch(b=>{
+                  console.log(b);//失败走这里     
+              })
+        }
+        //增
+        function testPost(){
+            axios({           //这个执行返回的是一个Promise对象
+                url:  'http://localhost:3000/posts', 
+                  method:'POST', //类型 
+                  data: { // 指定所有请求参数的对象,添加
+                    title: 'title222',
+                    author: 'author111'
+                    }
+              }) .then(a=>{     
+                  console.log(a);  //正确走这里
+              }).catch(b=>{
+                  console.log(b);//失败走这里     
+              })
+        }
+        //改
+        function testPut(){
+            axios({           //这个执行返回的是一个Promise对象
+                url:  'http://localhost:3000/posts/4', 
+                  method:'PUT', //类型 
+                  data: { // 指定所有请求参数的对象,添加
+                    title: '呃呃呃呃呃呃',
+                    author: '人个人'
+                    }
+              }) .then(a=>{     
+                  console.log(a);  //正确走这里
+              }).catch(b=>{
+                  console.log(b);//失败走这里     
+              })
+        }
+        //删除
+        function testDelete(){
+            axios({           //这个执行返回的是一个Promise对象
+                url:  'http://localhost:3000/posts/4', 
+                  method:'DELETE', //类型 
+                  data: { // 指定所有请求参数的对象,添加
+                    title: '呃呃呃呃呃呃',
+                    author: '人个人'
+                    }
+              }) .then(a=>{     
+                  console.log(a);  //正确走这里
+              }).catch(b=>{
+                  console.log(b);//失败走这里     
+              })
+        }
+
+   
+   
+   
+   
+    </script>
+</body>
+</html>
